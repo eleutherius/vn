@@ -237,9 +237,13 @@ function syncUrl(query: string) {
   clearTimeout(urlTimer);
   urlTimer = window.setTimeout(() => {
     const url = new URL(location.href);
-    if (query) url.searchParams.set('q', query);
-    else url.searchParams.delete('q');
-    url.hash = '';
+    if (query) {
+      url.searchParams.set('q', query);
+      url.hash = '';
+    } else {
+      if (!url.searchParams.has('q')) return;
+      url.searchParams.delete('q');
+    }
     history.replaceState(null, '', url);
   }, 300);
 }
@@ -295,7 +299,8 @@ empty.addEventListener('click', (e) => {
 
 /* ---------- Якорі: відкриваємо питання з #hash ---------- */
 
-function openFromHash() {
+/** initial — відкрили сторінку за посиланням: стрибаємо одразу, без анімації через усю сторінку */
+function openFromHash(initial = false) {
   const id = decodeURIComponent(location.hash.slice(1));
   if (!id) return;
   const target = document.getElementById(id);
@@ -305,13 +310,13 @@ function openFromHash() {
     search('');
   }
   target.open = true;
-  const scroll = () => target.scrollIntoView({ block: 'start' });
+  const scroll = () => target.scrollIntoView({ block: 'start', behavior: initial ? 'instant' : 'auto' });
   requestAnimationFrame(scroll);
   // Ще раз після анімації розкриття: поки вона йде, сторінка коротша і низ не докручується
   setTimeout(scroll, 320);
 }
 
-addEventListener('hashchange', openFromHash);
+addEventListener('hashchange', () => openFromHash());
 
 /* ---------- Поділитися ---------- */
 
@@ -408,6 +413,6 @@ if (initialQuery) {
   input.value = initialQuery;
   search(initialQuery);
 } else {
-  openFromHash();
+  openFromHash(true);
 }
 onScroll();

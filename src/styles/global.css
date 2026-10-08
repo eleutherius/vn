@@ -607,6 +607,9 @@ main {
 .prose > * + * {
   margin-top: 0.75em;
 }
+.prose > :first-child {
+  margin-top: 0;
+}
 .prose a {
   color: var(--jade);
   text-decoration-thickness: 1px;
