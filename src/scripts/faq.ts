@@ -305,7 +305,10 @@ function openFromHash() {
     search('');
   }
   target.open = true;
-  requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+  const scroll = () => target.scrollIntoView({ block: 'start' });
+  requestAnimationFrame(scroll);
+  // Ще раз після анімації розкриття: поки вона йде, сторінка коротша і низ не докручується
+  setTimeout(scroll, 320);
 }
 
 addEventListener('hashchange', openFromHash);
