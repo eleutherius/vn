@@ -1,0 +1,190 @@
+---
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/onest';
+import '../styles/global.css';
+import FaqSection from '../components/FaqSection.astro';
+import { getFaq } from '../lib/faq';
+import { ANSWER_FORMS, SECTION_FORMS, formatDate, plural } from '../lib/plural';
+import { site } from '../site.config';
+
+const categories = await getFaq();
+const total = categories.reduce((sum, c) => sum + c.questions.length, 0);
+const lastUpdated = categories
+  .map((c) => c.updated)
+  .filter((d): d is Date => Boolean(d))
+  .sort((a, b) => b.getTime() - a.getTime())[0];
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  inLanguage: 'uk',
+  mainEntity: categories.flatMap((c) =>
+    c.questions.map((q) => ({
+      '@type': 'Question',
+      name: q.title,
+      acceptedAnswer: { '@type': 'Answer', text: q.text },
+    })),
+  ),
+}).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <meta name="theme-color" content="#b3261e" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#6e1712" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:locale" content="uk_UA" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
+  </head>
+  <body>
+    <a class="skip-link" href="#faq">До питань</a>
+
+    <header class="hero">
+      <div class="hero-sun" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow"><span class="eyebrow-star" aria-hidden="true">✦</span>{site.eyebrow}</p>
+        <h1>{site.heading}</h1>
+        <p class="tagline">{site.tagline}</p>
+        <ul class="hero-meta">
+          <li>{plural(total, ANSWER_FORMS)}</li>
+          <li>{plural(categories.length, SECTION_FORMS)}</li>
+          {lastUpdated && <li>оновлено {formatDate(lastUpdated)}</li>}
+        </ul>
+      </div>
+      <svg class="hero-karst" aria-hidden="true">
+        <defs>
+          <pattern id="karst-back" width="390" height="240" patternUnits="userSpaceOnUse">
+            <path
+              class="karst-back"
+              d="M0 120L0 74C8 58 18 40 30 42C42 44 44 66 54 66C64 66 68 30 82 26C96 22 100 56 110 60C118 63 124 50 134 50C148 50 152 76 164 76C176 76 182 42 196 38C210 34 214 64 226 68C238 72 244 54 256 48C270 41 276 20 290 22C304 24 306 58 318 62C330 66 336 50 348 48C362 46 376 66 390 74L390 120Z"
+            ></path>
+          </pattern>
+          <pattern id="karst-mid" x="-140" width="390" height="240" patternUnits="userSpaceOnUse">
+            <path
+              class="karst-mid"
+              d="M0 120L0 90C10 80 18 62 30 62C42 62 46 84 58 86C70 88 74 72 86 72C98 72 100 90 112 92C126 94 128 68 142 68C156 68 158 94 170 96C182 98 186 86 198 86C210 86 214 100 226 100C240 100 244 72 258 72C272 72 274 96 286 98C298 100 302 88 314 88C326 88 330 100 342 100C356 100 362 84 374 84C382 84 386 88 390 90L390 120Z"
+            ></path>
+          </pattern>
+          <pattern id="karst-front" x="-60" width="390" height="240" patternUnits="userSpaceOnUse">
+            <path
+              class="karst-front"
+              d="M0 120L0 104C14 100 24 92 38 92C52 92 58 102 72 104C86 106 94 98 108 98C122 98 130 106 144 106C158 106 166 98 180 98C194 98 202 106 216 106C230 106 238 98 252 98C266 98 274 104 288 104C302 104 310 96 324 96C338 96 346 104 360 104C372 104 382 104 390 104L390 120Z"
+            ></path>
+          </pattern>
+        </defs>
+        <rect width="100%" height="120" fill="url(#karst-back)"></rect>
+        <rect width="100%" height="120" fill="url(#karst-mid)"></rect>
+        <rect width="100%" height="120" fill="url(#karst-front)"></rect>
+      </svg>
+      <span class="toolbar-sentinel" aria-hidden="true"></span>
+    </header>
+
+    <div class="toolbar" id="toolbar">
+      <div class="container toolbar-inner">
+        <form class="search" role="search" id="search-form">
+          <label class="sr-only" for="q">Пошук по питаннях</label>
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <input
+            id="q"
+            name="q"
+            type="search"
+            placeholder={site.searchPlaceholder}
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="search"
+          />
+          <kbd class="search-kbd" aria-hidden="true">/</kbd>
+          <button type="button" class="search-clear" id="search-clear" aria-label="Очистити пошук" hidden>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </form>
+
+        <nav class="chips" aria-label="Розділи">
+          {
+            categories.map((c) => (
+              <a class="chip" href={`#${c.id}`} data-nav={c.id}>
+                <span aria-hidden="true">{c.icon}</span>
+                {c.title}
+                <span class="chip-count" data-count={c.questions.length}>
+                  {c.questions.length}
+                </span>
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </div>
+
+    <div class="container layout">
+      <nav class="sidenav" aria-label="Розділи">
+        <p class="sidenav-label">Розділи</p>
+        <ul>
+          {
+            categories.map((c) => (
+              <li>
+                <a href={`#${c.id}`} data-nav={c.id}>
+                  <span class="sidenav-icon" aria-hidden="true">{c.icon}</span>
+                  <span class="sidenav-title">{c.title}</span>
+                  <span class="chip-count" data-count={c.questions.length}>
+                    {c.questions.length}
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <main id="faq">
+        <p class="search-status" id="search-status" aria-live="polite" hidden></p>
+
+        {categories.map((category) => <FaqSection category={category} />)}
+
+        <div class="empty" id="empty" hidden>
+          <div class="empty-art" aria-hidden="true">🛶</div>
+          <h2>Нічого не знайшли</h2>
+          <p>Спробуйте інше слово або одну з підказок:</p>
+          <div class="suggestions">
+            {site.suggestions.map((s) => <button type="button" class="chip" data-suggest={s}>{s}</button>)}
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p class="disclaimer">{site.disclaimer}</p>
+        <p class="footer-meta">
+          {plural(total, ANSWER_FORMS)} · {plural(categories.length, SECTION_FORMS)}
+          {lastUpdated && <> · оновлено {formatDate(lastUpdated)}</>}
+          {site.repoUrl && <> · <a href={site.repoUrl} target="_blank" rel="noopener noreferrer">GitHub</a></>}
+        </p>
+      </div>
+    </footer>
+
+    <button type="button" class="to-top" id="to-top" aria-label="Нагору" hidden>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 16V4M5 9l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+
+    <script>
+      import '../scripts/faq.ts';
+    </script>
+  </body>
+</html>
