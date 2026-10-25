@@ -214,6 +214,92 @@ button {
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
 }
 
+/* Банер-порада в шапці */
+.promo {
+  max-width: 440px;
+  margin-top: 22px;
+  padding: 14px 16px 12px;
+  border-radius: var(--radius);
+  background: rgb(0 0 0 / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+.promo p {
+  margin: 0;
+}
+.promo-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+.promo-text {
+  margin-top: 4px !important;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  opacity: 0.94;
+  text-wrap: pretty;
+}
+.promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.promo-code,
+.promo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+.promo-code {
+  flex: 1 1 auto;
+  justify-content: space-between;
+  border: 1.5px dashed var(--gold);
+  background: transparent;
+  color: var(--hero-ink);
+}
+.promo-code-value {
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.promo-code-hint {
+  font-size: 0.75rem;
+  font-weight: 550;
+  opacity: 0.75;
+}
+.promo-code.is-done {
+  border-style: solid;
+}
+.promo-code.is-done .promo-code-hint {
+  color: var(--gold);
+  opacity: 1;
+}
+.promo-cta {
+  flex: 1 1 auto;
+  justify-content: center;
+  background: var(--gold);
+  color: #2a1d00;
+  text-decoration: none;
+  transition: filter 0.15s;
+}
+.promo-cta:hover {
+  filter: brightness(1.08);
+}
+.promo-note {
+  margin-top: 10px !important;
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+.promo-note a {
+  color: inherit;
+  text-underline-offset: 2px;
+}
+
 .hero-karst {
   position: absolute;
   inset: auto 0 -1px;

@@ -1,4 +1,28 @@
+export interface Promo {
+  title: string;
+  text: string;
+  /** Промокод: кнопка копіює його в буфер */
+  code: string;
+  url: string;
+  cta: string;
+  /** Якір питання з подробицями */
+  moreHref: string;
+  note: string;
+}
+
+/** Банер у шапці. Щоб прибрати, поставте `undefined`. */
+const promo: Promo | undefined = {
+  title: 'Інтернет одразу після посадки',
+  text: 'Я користуюся eSIM від Saily. З моїм кодом перший пакет дешевший на $5, а Ultra — на $10.',
+  code: 'OLEKSA1059',
+  url: 'https://saily.onelink.me/5Txv/OLEKSA1059',
+  cta: 'Встановити Saily',
+  moreHref: '#a-yak-shchodo-esim',
+  note: 'Реферальне посилання: вам знижка, мені бонус',
+};
+
 export const site = {
+  promo,
   title: 'Вʼєтнам: питання і відповіді',
   description:
     'FAQ для мандрівників до Вʼєтнаму українською: візи, гроші, звʼязок, транспорт, погода, їжа, безпека, етикет, переїзд і міста.',

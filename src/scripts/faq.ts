@@ -351,6 +351,28 @@ main.addEventListener('click', async (e) => {
   }
 });
 
+/* ---------- Скопіювати промокод (банер у шапці) ---------- */
+
+document.addEventListener('click', async (e) => {
+  const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-copy]');
+  if (!button) return;
+  const hint = button.querySelector('.promo-code-hint');
+  try {
+    await navigator.clipboard.writeText(button.dataset.copy!);
+  } catch {
+    // Немає доступу до буфера — виділяємо код, щоб скопіювати вручну
+    const value = button.querySelector('.promo-code-value');
+    if (value) getSelection()?.selectAllChildren(value);
+    return;
+  }
+  button.classList.add('is-done');
+  if (hint) hint.textContent = 'скопійовано ✓';
+  setTimeout(() => {
+    button.classList.remove('is-done');
+    if (hint) hint.textContent = 'копіювати';
+  }, 2000);
+});
+
 /* ---------- Липкий тулбар, висота, scrollspy, «нагору» ---------- */
 
 new ResizeObserver(() => {

@@ -28,9 +28,23 @@ const marked = new Marked({ gfm: true });
 
 const CALLOUT = /<blockquote>\s*<p>\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*/gi;
 
+/** Назва події для GoatCounter: кліки по зовнішніх посиланнях видно в статистиці як ext-домен/шлях */
+function outboundEvent(href: string): string {
+  try {
+    const url = new URL(href.replace(/&amp;/g, '&'));
+    return `ext-${url.host}${url.pathname.replace(/\/$/, '')}`;
+  } catch {
+    return 'ext-link';
+  }
+}
+
 function renderBlock(md: string): string {
   return (marked.parse(md, { async: false }) as string)
-    .replace(/<a href="(https?:\/\/[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"')
+    .replace(
+      /<a href="(https?:\/\/[^"]+)"/g,
+      (_, href: string) =>
+        `<a href="${href}" target="_blank" rel="noopener noreferrer" data-goatcounter-click="${outboundEvent(href)}"`,
+    )
     .replace(CALLOUT, (_, kind: string) => `<blockquote class="callout" data-kind="${kind.toLowerCase()}"><p>`)
     .replace(/<p>\s*<\/p>/g, '')
     .replace(/<table>/g, '<div class="table-wrap"><table>')

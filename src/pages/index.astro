@@ -65,6 +65,43 @@ const jsonLd = JSON.stringify({
           <li>{plural(categories.length, SECTION_FORMS)}</li>
           {lastUpdated && <li>оновлено {formatDate(lastUpdated)}</li>}
         </ul>
+        {
+          site.promo && (
+            <aside class="promo" aria-label="Порада: eSIM">
+              <p class="promo-title">
+                <span aria-hidden="true">📶</span>
+                {site.promo.title}
+              </p>
+              <p class="promo-text">{site.promo.text}</p>
+              <div class="promo-actions">
+                <button
+                  type="button"
+                  class="promo-code"
+                  data-copy={site.promo.code}
+                  data-goatcounter-click="promo-copy-code"
+                  data-goatcounter-title="Скопіювали промокод"
+                >
+                  <span class="promo-code-value">{site.promo.code}</span>
+                  <span class="promo-code-hint" aria-live="polite">копіювати</span>
+                </button>
+                <a
+                  class="promo-cta"
+                  href={site.promo.url}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  data-goatcounter-click="promo-saily"
+                  data-goatcounter-title="Банер Saily"
+                >
+                  {site.promo.cta}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+              <p class="promo-note">
+                {site.promo.note} · <a href={site.promo.moreHref}>більше про eSIM</a>
+              </p>
+            </aside>
+          )
+        }
       </div>
       <svg class="hero-karst" aria-hidden="true">
         <defs>
