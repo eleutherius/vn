@@ -244,6 +244,8 @@ const jsonLd = JSON.stringify({
     </button>
 
     <script>
+      // Аналітика першою: вона слухає події пошуку, які faq.ts шле вже на старті (?q=…)
+      import '../scripts/analytics.ts';
       import '../scripts/faq.ts';
     </script>
   </body>

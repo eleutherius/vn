@@ -135,6 +135,7 @@ function search(rawQuery: string) {
     updateNavCounts(null);
     highlight([], []);
     syncUrl('');
+    announce('', index.length);
     return;
   }
 
@@ -176,6 +177,12 @@ function search(rawQuery: string) {
   highlight(visible, stems.flat());
   syncUrl(query);
   scrollToResults();
+  announce(query, n);
+}
+
+/** Для аналітики (analytics.ts): що шукали і скільки знайшли */
+function announce(query: string, results: number) {
+  document.dispatchEvent(new CustomEvent('faq:search', { detail: { query, results } }));
 }
 
 function updateNavCounts(perSection: Map<string, number> | null) {
