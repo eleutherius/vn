@@ -1,13 +1,18 @@
 ---
 import type { FaqCategory } from '../lib/faq';
-import { formatDate } from '../lib/plural';
+import { QUESTION_FORMS, formatDate, plural } from '../lib/plural';
+import { withPromo } from '../lib/promo';
 import { site } from '../site.config';
 
 interface Props {
   category: FaqCategory;
+  /** Порядковий номер розділу, з 1 */
+  number: number;
+  next?: { id: string; title: string; number: number };
 }
 
-const { category } = Astro.props;
+const { category, number, next } = Astro.props;
+const num = String(number).padStart(2, '0');
 const editUrl =
   site.repoUrl && category.filePath
     ? `${site.repoUrl}/edit/${site.repoBranch}/${category.filePath}`
@@ -16,53 +21,79 @@ const editUrl =
 
 <section class="cat" id={category.id} data-cat={category.id} aria-labelledby={`${category.id}-title`}>
   <header class="cat-head">
-    <span class="cat-icon" aria-hidden="true">{category.icon}</span>
-    <div>
-      <h2 class="cat-title" id={`${category.id}-title`}>{category.title}</h2>
-      {category.description && <p class="cat-desc">{category.description}</p>}
-    </div>
+    <p class="cat-meta">
+      <span class="cat-num" aria-hidden="true">{num}</span>
+      <span>
+        {plural(category.questions.length, QUESTION_FORMS)}
+        {category.updated && <> · оновлено {formatDate(category.updated)}</>}
+        {
+          editUrl && (
+            <>
+              {' · '}
+              <a class="cat-edit" href={editUrl} target="_blank" rel="noopener noreferrer">
+                запропонувати правку ↗
+              </a>
+            </>
+          )
+        }
+      </span>
+    </p>
+    <h2 class="cat-title" id={`${category.id}-title`}>{category.title}</h2>
+    {category.description && <p class="cat-desc">{category.description}</p>}
   </header>
 
   {category.introHtml && <div class="cat-intro prose" set:html={category.introHtml} />}
 
+  <ol class="cat-toc" aria-label={`Питання розділу «${category.title}»`}>
+    {
+      category.questions.map((q, i) => (
+        <li>
+          <a href={`#${q.id}`}>
+            <span class="toc-num">
+              {number}.{i + 1}
+            </span>
+            <span set:html={q.titleHtml} />
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+
   <div class="qa-list">
     {
-      category.questions.map((q) => (
-        <details class="qa" id={q.id} data-qa>
-          <summary>
-            <h3 class="qa-q" set:html={q.titleHtml} />
-            <span class="qa-chev" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      category.questions.map((q, i) => (
+        <article class="qa" id={q.id} data-qa aria-labelledby={`${q.id}-h`}>
+          <div class="qa-head">
+            <a class="qa-num" href={`#${q.id}`} tabindex="-1" aria-hidden="true">
+              {number}.{i + 1}
+            </a>
+            <button type="button" class="share-btn" data-share={q.id} data-title={q.title}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M6.5 9.5l3-3M7 4.5l1-1a3 3 0 014.24 4.24l-1 1M9 11.5l-1 1A3 3 0 013.76 8.26l1-1"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
               </svg>
-            </span>
-          </summary>
-          <div class="qa-body">
-            <div class="prose" set:html={q.html} />
-            <div class="qa-foot">
-              <button type="button" class="share-btn" data-share={q.id} data-title={q.title}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M6.5 9.5l3-3M7 4.5l1-1a3 3 0 014.24 4.24l-1 1M9 11.5l-1 1A3 3 0 013.76 8.26l1-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                <span>Поділитися</span>
-              </button>
-            </div>
+              <span>Поділитися</span>
+            </button>
           </div>
-        </details>
+          <h3 class="qa-q" id={`${q.id}-h`} set:html={q.titleHtml} />
+          <div class="prose" set:html={withPromo(q.html, site.promo)} />
+        </article>
       ))
     }
   </div>
 
-  {
-    (category.updated || editUrl) && (
-      <footer class="cat-foot">
-        {category.updated && <span>Оновлено {formatDate(category.updated)}</span>}
-        {editUrl && (
-          <a href={editUrl} target="_blank" rel="noopener noreferrer">
-            Запропонувати правку ↗
-          </a>
-        )}
-      </footer>
-    )
-  }
+  <footer class="cat-foot">
+    <a href={`#${category.id}`}>↑ Зміст розділу</a>
+    {
+      next && (
+        <a href={`#${next.id}`}>
+          Далі: {String(next.number).padStart(2, '0')} {next.title} →
+        </a>
+      )
+    }
+  </footer>
 </section>

@@ -8,6 +8,7 @@ export function plural(n: number, [one, few, many]: [string, string, string]): s
 }
 
 export const ANSWER_FORMS: [string, string, string] = ['відповідь', 'відповіді', 'відповідей'];
+export const QUESTION_FORMS: [string, string, string] = ['питання', 'питання', 'питань'];
 export const SECTION_FORMS: [string, string, string] = ['розділ', 'розділи', 'розділів'];
 
 export function formatDate(date: Date): string {

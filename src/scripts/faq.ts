@@ -75,7 +75,7 @@ function queryStems(query: string): string[][] {
 /* ---------- Індекс з DOM ---------- */
 
 interface Item {
-  el: HTMLDetailsElement;
+  el: HTMLElement;
   section: HTMLElement;
   tokens: string[];
 }
@@ -87,6 +87,7 @@ const clearBtn = document.getElementById('search-clear') as HTMLButtonElement;
 const status = document.getElementById('search-status') as HTMLElement;
 const empty = document.getElementById('empty') as HTMLElement;
 const main = document.getElementById('faq') as HTMLElement;
+const searchOpen = document.getElementById('search-open') as HTMLButtonElement;
 const toTop = document.getElementById('to-top') as HTMLButtonElement;
 const sections = [...document.querySelectorAll<HTMLElement>('section[data-cat]')];
 const chipsNav = document.querySelector<HTMLElement>('.chips');
@@ -94,9 +95,9 @@ const chipsNav = document.querySelector<HTMLElement>('.chips');
 let index: Item[] | undefined;
 
 function buildIndex(): Item[] {
-  return [...document.querySelectorAll<HTMLDetailsElement>('details[data-qa]')].map((el) => {
+  return [...document.querySelectorAll<HTMLElement>('article[data-qa]')].map((el) => {
     const title = el.querySelector('.qa-q')?.textContent ?? '';
-    const body = el.querySelector('.qa-body .prose')?.textContent ?? '';
+    const body = el.querySelector('.prose')?.textContent ?? '';
     return {
       el,
       section: el.closest<HTMLElement>('section[data-cat]')!,
@@ -115,7 +116,6 @@ const hits = (tokens: string[], s: string) => tokens.some((t) => wordMatches(t, 
 
 /* ---------- Пошук ---------- */
 
-const autoOpened = new Set<HTMLDetailsElement>();
 let lastQuery = '';
 
 function search(rawQuery: string) {
@@ -126,9 +126,6 @@ function search(rawQuery: string) {
 
   clearBtn.hidden = !rawQuery;
   document.body.classList.toggle('is-searching', Boolean(query));
-
-  for (const el of autoOpened) el.open = false;
-  autoOpened.clear();
 
   if (!query) {
     for (const item of index) item.el.hidden = false;
@@ -169,16 +166,6 @@ function search(rawQuery: string) {
   for (const section of sections) section.hidden = !perSection.has(section.dataset.cat!);
   updateNavCounts(perSection);
 
-  // Мало результатів — розгортаємо, щоб одразу було видно відповідь
-  if (visible.length <= 3) {
-    for (const item of visible) {
-      if (!item.el.open) {
-        item.el.open = true;
-        autoOpened.add(item.el);
-      }
-    }
-  }
-
   const n = visible.length;
   status.hidden = n === 0;
   empty.hidden = n > 0;
@@ -212,7 +199,7 @@ function highlight(items: Item[], stems: string[]) {
   }
   const ranges: Range[] = [];
   for (const { el } of items) {
-    for (const root of el.querySelectorAll('.qa-q, .qa-body .prose')) {
+    for (const root of el.querySelectorAll('.qa-q, .prose')) {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
         const text = node.nodeValue ?? '';
@@ -297,23 +284,22 @@ empty.addEventListener('click', (e) => {
   search(input.value);
 });
 
-/* ---------- Якорі: відкриваємо питання з #hash ---------- */
+/* ---------- Якорі: перехід до питання з #hash ---------- */
 
 /** initial — відкрили сторінку за посиланням: стрибаємо одразу, без анімації через усю сторінку */
 function openFromHash(initial = false) {
   const id = decodeURIComponent(location.hash.slice(1));
   if (!id) return;
   const target = document.getElementById(id);
-  if (!(target instanceof HTMLDetailsElement)) return;
-  if (target.hidden) {
+  if (!target?.matches('[data-qa], section[data-cat]')) return;
+  // Питання сховане пошуком — скидаємо пошук, щоб воно зʼявилося
+  if (target.hidden || target.closest('[hidden]')) {
     input.value = '';
     search('');
+    requestAnimationFrame(() => target.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    return;
   }
-  target.open = true;
-  const scroll = () => target.scrollIntoView({ block: 'start', behavior: initial ? 'instant' : 'auto' });
-  requestAnimationFrame(scroll);
-  // Ще раз після анімації розкриття: поки вона йде, сторінка коротша і низ не докручується
-  setTimeout(scroll, 320);
+  if (initial) requestAnimationFrame(() => target.scrollIntoView({ block: 'start', behavior: 'instant' }));
 }
 
 addEventListener('hashchange', () => openFromHash());
@@ -351,12 +337,12 @@ main.addEventListener('click', async (e) => {
   }
 });
 
-/* ---------- Скопіювати промокод (банер у шапці) ---------- */
+/* ---------- Скопіювати промокод (картка у відповіді про eSIM) ---------- */
 
 document.addEventListener('click', async (e) => {
   const button = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-copy]');
   if (!button) return;
-  const hint = button.querySelector('.promo-code-hint');
+  const hint = button.querySelector('.promo-code-hint [aria-live]');
   try {
     await navigator.clipboard.writeText(button.dataset.copy!);
   } catch {
@@ -373,18 +359,41 @@ document.addEventListener('click', async (e) => {
   }, 2000);
 });
 
-/* ---------- Липкий тулбар, висота, scrollspy, «нагору» ---------- */
+/* ---------- Липкий тулбар: згортання пошуку, висота, scrollspy, «нагору» ---------- */
 
-new ResizeObserver(() => {
-  document.documentElement.style.setProperty('--toolbar-h', `${toolbar.offsetHeight}px`);
-}).observe(toolbar);
+// На телефоні прилиплий тулбар нижчий: пошук згортається в кружечок біля чипів.
+// Щоб текст під ним не стрибав, різницю висот компенсуємо нижнім відступом.
+let fullHeight = toolbar.offsetHeight;
+function syncToolbar() {
+  const h = toolbar.offsetHeight;
+  if (toolbar.classList.contains('is-stuck')) {
+    toolbar.style.marginBottom = `${Math.max(0, fullHeight - h)}px`;
+    document.documentElement.style.setProperty('--toolbar-h', `${h}px`);
+  } else {
+    toolbar.style.marginBottom = '';
+    fullHeight = h;
+  }
+}
+new ResizeObserver(syncToolbar).observe(toolbar);
 
 const sentinel = document.querySelector('.toolbar-sentinel');
 if (sentinel) {
   new IntersectionObserver(([entry]) => {
+    if (!toolbar.classList.contains('is-stuck')) fullHeight = toolbar.offsetHeight;
     toolbar.classList.toggle('is-stuck', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    syncToolbar();
   }).observe(sentinel);
 }
+
+const setSearchOpen = (open: boolean) => toolbar.classList.toggle('is-search-open', open);
+searchOpen.addEventListener('click', () => {
+  setSearchOpen(true);
+  input.focus();
+});
+input.addEventListener('focus', () => setSearchOpen(true));
+input.addEventListener('blur', () => {
+  if (!input.value) setSearchOpen(false);
+});
 
 let activeId: string | undefined;
 function setActive(id: string | undefined) {
@@ -394,12 +403,25 @@ function setActive(id: string | undefined) {
     if (link.dataset.nav === id) link.setAttribute('aria-current', 'true');
     else link.removeAttribute('aria-current');
   }
+  for (const li of document.querySelectorAll<HTMLElement>('.sidenav [data-side]')) {
+    li.classList.toggle('is-open', li.dataset.side === id);
+  }
   const chip = id ? chipsNav?.querySelector<HTMLElement>(`[data-nav="${CSS.escape(id)}"]`) : null;
   if (chip && chipsNav) {
     chipsNav.scrollTo({
       left: chip.offsetLeft - (chipsNav.clientWidth - chip.offsetWidth) / 2,
       behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
     });
+  }
+}
+
+let activeQuestion: string | undefined;
+function setActiveQuestion(id: string | undefined) {
+  if (id === activeQuestion) return;
+  activeQuestion = id;
+  for (const link of document.querySelectorAll<HTMLElement>('[data-qnav]')) {
+    if (link.dataset.qnav === id) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
   }
 }
 
@@ -421,6 +443,19 @@ function onScroll() {
       current = sections.filter((s) => !s.hidden).at(-1)?.dataset.cat ?? current;
     }
     setActive(current);
+
+    // Питання, яке зараз читають, — для підсвітки в лівій колонці на десктопі
+    let question: string | undefined;
+    const section = current ? document.getElementById(current) : null;
+    if (section) {
+      for (const qa of section.querySelectorAll<HTMLElement>('article[data-qa]')) {
+        if (qa.hidden) continue;
+        if (qa.getBoundingClientRect().top <= line + 40) question = qa.id;
+        else break;
+      }
+    }
+    setActiveQuestion(question);
+
     toTop.hidden = scrollY < innerHeight * 1.5;
   });
 }

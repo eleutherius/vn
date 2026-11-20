@@ -1,24 +1,30 @@
 export interface Promo {
+  /** Короткий рядок у шапці: «eSIM Saily: −$5 з кодом» + код */
+  short: string;
+  /** Підпис над карткою у відповіді */
+  kicker: string;
   title: string;
   text: string;
   /** Промокод: кнопка копіює його в буфер */
   code: string;
   url: string;
   cta: string;
-  /** Якір питання з подробицями */
+  /** Якір питання, куди веде рядок у шапці. Картку з кодом показує маркер <!-- promo --> у markdown */
   moreHref: string;
   note: string;
 }
 
-/** Банер у шапці. Щоб прибрати, поставте `undefined`. */
+/** Рядок у шапці + картка в місці маркера <!-- promo -->. Щоб прибрати, поставте `undefined`. */
 const promo: Promo | undefined = {
+  short: 'eSIM Saily: −$5 з кодом',
+  kicker: 'Мій вибір · Saily',
   title: 'Інтернет одразу після посадки',
-  text: 'Я користуюся eSIM від Saily. З моїм кодом перший пакет дешевший на $5, а Ultra — на $10.',
+  text: 'З кодом перший пакет Saily дешевший на $5, а Ultra — на $10. Введіть його при оплаті.',
   code: 'OLEKSA1059',
   url: 'https://saily.onelink.me/5Txv/OLEKSA1059',
   cta: 'Встановити Saily',
   moreHref: '#a-yak-shchodo-esim',
-  note: 'Реферальне посилання: вам знижка, мені бонус',
+  note: 'Реферальне посилання: вам знижка, мені бонус у Saily.',
 };
 
 export const site = {
@@ -26,7 +32,7 @@ export const site = {
   title: 'Вʼєтнам: питання і відповіді',
   description:
     'FAQ для мандрівників до Вʼєтнаму українською: візи, гроші, звʼязок, транспорт, погода, їжа, безпека, етикет, переїзд і міста.',
-  eyebrow: 'FAQ для мандрівників',
+  eyebrow: 'Довідник для мандрівників',
   heading: 'Вʼєтнам',
   tagline: 'Коротко й по суті про все, що спадає на думку перед поїздкою і вже на місці.',
   searchPlaceholder: 'Пошук: віза, Grab, eSIM…',
