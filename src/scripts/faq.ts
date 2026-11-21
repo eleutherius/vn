@@ -186,7 +186,7 @@ function announce(query: string, results: number) {
 }
 
 function updateNavCounts(perSection: Map<string, number> | null) {
-  for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-nav]')) {
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-nav]:not([data-nav-static])')) {
     const id = link.dataset.nav!;
     const count = link.querySelector<HTMLElement>('.chip-count');
     const n = perSection ? (perSection.get(id) ?? 0) : Number(count?.dataset.count);
@@ -298,7 +298,7 @@ function openFromHash(initial = false) {
   const id = decodeURIComponent(location.hash.slice(1));
   if (!id) return;
   const target = document.getElementById(id);
-  if (!target?.matches('[data-qa], section[data-cat]')) return;
+  if (!target?.matches('[data-qa], section[data-cat], section.author')) return;
   // Питання сховане пошуком — скидаємо пошук, щоб воно зʼявилося
   if (target.hidden || target.closest('[hidden]')) {
     input.value = '';
@@ -432,6 +432,10 @@ function setActiveQuestion(id: string | undefined) {
   }
 }
 
+// Для scrollspy: розділи + «Про автора» в кінці
+const spyTargets = [...sections, ...document.querySelectorAll<HTMLElement>('section.author')];
+const spyId = (el: HTMLElement) => el.dataset.cat ?? el.id;
+
 let ticking = false;
 function onScroll() {
   if (ticking) return;
@@ -440,14 +444,20 @@ function onScroll() {
     ticking = false;
     const line = toolbar.offsetHeight + 24;
     let current: string | undefined;
-    for (const section of sections) {
+    for (const section of spyTargets) {
       if (section.hidden) continue;
-      if (section.getBoundingClientRect().top <= line) current = section.dataset.cat;
+      if (section.getBoundingClientRect().top <= line) current = spyId(section);
       else break;
     }
-    // Біля самого низу сторінки — підсвічуємо останній розділ
-    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) {
-      current = sections.filter((s) => !s.hidden).at(-1)?.dataset.cat ?? current;
+    // Останній блок («Про автора») короткий і до верху не докручується —
+    // вважаємо його поточним, коли він піднявся до середини екрана або ми внизу сторінки
+    const last = spyTargets.filter((s) => !s.hidden).at(-1);
+    if (
+      last &&
+      (last.getBoundingClientRect().top <= innerHeight * 0.5 ||
+        innerHeight + scrollY >= document.documentElement.scrollHeight - 4)
+    ) {
+      current = spyId(last);
     }
     setActive(current);
 

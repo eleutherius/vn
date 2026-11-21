@@ -2,6 +2,7 @@
 import '@fontsource-variable/unbounded';
 import '@fontsource-variable/onest';
 import '../styles/global.css';
+import Author from '../components/Author.astro';
 import FaqSection from '../components/FaqSection.astro';
 import { getFaq } from '../lib/faq';
 import { ANSWER_FORMS, SECTION_FORMS, formatDate, plural } from '../lib/plural';
@@ -162,6 +163,13 @@ const jsonLd = JSON.stringify({
               </a>
             ))
           }
+          {
+            site.author && (
+              <a class="chip" href={`#${site.author.id}`} data-nav={site.author.id} data-nav-static>
+                Про автора
+              </a>
+            )
+          }
         </nav>
       </div>
     </div>
@@ -198,6 +206,13 @@ const jsonLd = JSON.stringify({
             ))
           }
         </ul>
+        {
+          site.author && (
+            <a class="sidenav-author" href={`#${site.author.id}`} data-nav={site.author.id} data-nav-static>
+              Про автора
+            </a>
+          )
+        }
       </nav>
 
       <main id="faq">
@@ -222,7 +237,16 @@ const jsonLd = JSON.stringify({
           <div class="suggestions">
             {site.suggestions.map((s) => <button type="button" class="chip" data-suggest={s}>{s}</button>)}
           </div>
+          {
+            site.author && (
+              <p class="empty-ask">
+                Або <a href={`#${site.author.id}`}>напишіть мені</a> — підкажу.
+              </p>
+            )
+          }
         </div>
+
+        {site.author && <Author author={site.author} base={base} />}
       </main>
     </div>
 
@@ -232,6 +256,7 @@ const jsonLd = JSON.stringify({
         <p class="footer-meta">
           {plural(total, ANSWER_FORMS)} · {plural(categories.length, SECTION_FORMS)}
           {lastUpdated && <> · оновлено {formatDate(lastUpdated)}</>}
+          {site.author && <> · <a href={`#${site.author.id}`}>Автор</a></>}
           {site.repoUrl && <> · <a href={site.repoUrl} target="_blank" rel="noopener noreferrer">GitHub</a></>}
         </p>
       </div>

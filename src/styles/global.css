@@ -159,6 +159,7 @@ button {
   .promo-line,
   .promo-code,
   .promo-cta,
+  .author-contacts a,
   .to-top {
     transition: transform 100ms ease-out;
   }
@@ -171,6 +172,7 @@ button {
   .promo-line:active,
   .promo-code:active,
   .promo-cta:active,
+  .author-contacts a:active,
   .to-top:active {
     transform: var(--press);
   }
@@ -503,9 +505,9 @@ body.is-searching .chips .chip-count {
   opacity: 0.7;
 }
 
-/* Телефон і планшет: коли панель прилипла, пошук згортається в кружечок біля чипів */
+/* Телефон і планшет: коли панель прилипла, пошук згортається в кружечок біля чипів (але не під час пошуку) */
 @media (max-width: 999px) {
-  .toolbar.is-stuck:not(.is-search-open) .search {
+  body:not(.is-searching) .toolbar.is-stuck:not(.is-search-open) .search {
     flex: none;
     width: 44px;
     height: 44px;
@@ -515,16 +517,16 @@ body.is-searching .chips .chip-count {
     border-radius: 50%;
     box-shadow: none;
   }
-  .toolbar.is-stuck:not(.is-search-open) .search > :not(.search-icon, .search-open) {
+  body:not(.is-searching) .toolbar.is-stuck:not(.is-search-open) .search > :not(.search-icon, .search-open) {
     display: none;
   }
-  .toolbar.is-stuck:not(.is-search-open) .search-icon {
+  body:not(.is-searching) .toolbar.is-stuck:not(.is-search-open) .search-icon {
     color: var(--ink);
   }
-  .toolbar.is-stuck:not(.is-search-open) .search-open {
+  body:not(.is-searching) .toolbar.is-stuck:not(.is-search-open) .search-open {
     display: block;
   }
-  .toolbar.is-stuck:not(.is-search-open) .chips {
+  body:not(.is-searching) .toolbar.is-stuck:not(.is-search-open) .chips {
     flex: 1 1 0;
     margin: 0 calc(-1 * var(--gutter)) 0 0;
     padding: 10px var(--gutter) 10px 0;
@@ -1035,6 +1037,90 @@ main {
   line-height: 1.45;
 }
 
+/* ---------- Про автора ---------- */
+.author {
+  display: grid;
+  gap: 24px;
+  margin-top: 72px;
+  padding: 24px 20px 20px;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--line),
+    var(--shadow-sm);
+  scroll-margin-top: calc(var(--toolbar-h) + 12px);
+}
+.author-title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.author-text {
+  max-width: 36em;
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.author-text + .author-text {
+  margin-top: 0.6em;
+  color: var(--ink-2);
+}
+.author-contacts {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.author-contacts a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+.author-contacts svg {
+  flex: none;
+  color: var(--red);
+}
+.author-contact-label {
+  flex: none;
+  font-weight: 650;
+}
+.author-contact-handle {
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.author-contacts a:hover .author-contact-label {
+  color: var(--red);
+}
+.author-more {
+  margin: 14px 0 0;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+}
+.author-more a {
+  display: inline-block;
+  padding: 6px 0;
+  color: var(--ink-2);
+  text-underline-offset: 3px;
+}
+.author-qr {
+  display: none;
+}
+
 /* ---------- Порожній пошук ---------- */
 .empty {
   padding: 48px 0 24px;
@@ -1049,6 +1135,13 @@ main {
 .empty p {
   margin: 0;
   color: var(--ink-2);
+}
+.empty-ask {
+  margin-top: 18px !important;
+}
+.empty-ask a {
+  color: var(--jade);
+  text-underline-offset: 3px;
 }
 .suggestions {
   display: flex;
@@ -1204,6 +1297,40 @@ body.is-searching .qa {
   .share-btn.is-done {
     border-color: var(--jade);
   }
+
+  .author {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 40px;
+    margin-top: 96px;
+    padding: 32px;
+  }
+  .author-title {
+    font-size: 2rem;
+  }
+  .author-qr {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: 172px;
+    margin: 4px 0 0;
+  }
+  .author-qr img {
+    display: block;
+    width: 148px;
+    height: 148px;
+    padding: 8px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px var(--line-strong);
+  }
+  .author-qr figcaption {
+    color: var(--ink-3);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    text-align: center;
+    text-wrap: balance;
+  }
 }
 
 @media (min-width: 1000px) {
@@ -1290,6 +1417,10 @@ body.is-searching .qa {
   }
   .sidenav a[aria-current='true'] .sidenav-num {
     color: var(--red);
+  }
+
+  .sidenav-author {
+    margin-top: 14px;
   }
 
   .sidenav-sub {

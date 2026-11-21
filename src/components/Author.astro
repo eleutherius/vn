@@ -1,0 +1,73 @@
+---
+import type { Author } from '../site.config';
+
+interface Props {
+  author: Author;
+  /** BASE_URL з кінцевим слешем — для файлів з public/ */
+  base: string;
+}
+
+const { author, base } = Astro.props;
+
+const icons: Record<string, string> = {
+  // «@» — Threads
+  threads:
+    '<circle cx="10" cy="10" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M13.2 10v1.3a2.3 2.3 0 004.6 0V10a7.8 7.8 0 10-3.1 6.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+  // хмаринка повідомлення — Zalo
+  chat: '<path d="M10 3c-4.4 0-7.5 2.8-7.5 6.3 0 2 1 3.7 2.6 4.8L4.6 17l3.4-1.6c.6.1 1.3.2 2 .2 4.4 0 7.5-2.8 7.5-6.3S14.4 3 10 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+  // конверт — пошта
+  mail: '<rect x="2.5" y="4.5" width="15" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 5.5l7 5.2 7-5.2" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+};
+
+const isExternal = (href: string) => href.startsWith('http');
+---
+
+<section class="author" id={author.id} aria-labelledby={`${author.id}-title`}>
+  <div class="author-body">
+    <h2 class="author-title" id={`${author.id}-title`}>{author.greeting}</h2>
+    {author.about.map((p) => <p class="author-text">{p}</p>)}
+
+    <ul class="author-contacts">
+      {
+        author.contacts.map((c) => (
+          <li>
+            <a
+              href={c.href}
+              {...(isExternal(c.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              data-goatcounter-click={`contact-${c.icon === 'chat' ? 'zalo' : c.icon}`}
+              data-goatcounter-title={`Контакт: ${c.label}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" set:html={icons[c.icon]} />
+              <span class="author-contact-label">{c.label}</span>
+              <span class="author-contact-handle">{c.handle}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      author.more && author.more.length > 0 && (
+        <p class="author-more">
+          {author.more.map((m, i) => (
+            <>
+              {i > 0 && ' · '}
+              <a href={m.href} target="_blank" rel="noopener noreferrer">
+                {m.label}
+              </a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
+
+  {
+    author.zaloQr && (
+      <figure class="author-qr">
+        <img src={`${base}${author.zaloQr.src}`} width="148" height="148" alt="QR-код, щоб додати автора в Zalo" loading="lazy" />
+        <figcaption>{author.zaloQr.caption}</figcaption>
+      </figure>
+    )
+  }
+</section>

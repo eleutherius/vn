@@ -137,8 +137,8 @@ addEventListener('pagehide', sendSearch);
 
 const initialId = decodeURIComponent(location.hash.slice(1));
 const initialTarget = initialId ? document.getElementById(initialId) : null;
-if (initialTarget?.matches('[data-qa], section[data-cat]')) {
-  const title = textOf(initialTarget.querySelector('.qa-q, .cat-title'));
+if (initialTarget?.matches('[data-qa], section[data-cat], section.author')) {
+  const title = textOf(initialTarget.querySelector('.qa-q, h2'));
   track(`link-${initialId}`, `Відкрили за посиланням: ${title}`, document.referrer || undefined);
 }
 
@@ -151,7 +151,7 @@ document.addEventListener('click', (e) => {
     track(`share-${el.dataset.share}`, `Поділилися: ${el.dataset.title ?? ''}`);
   } else if (el.dataset.nav) {
     const id = el.dataset.nav;
-    track(`nav-${id}`, `Перейшли до розділу: ${textOf(document.getElementById(id)?.querySelector('.cat-title'))}`);
+    track(`nav-${id}`, `Перейшли до розділу: ${textOf(document.getElementById(id)?.querySelector('h2'))}`);
   } else {
     const id = el.dataset.qnav ?? decodeURIComponent(el.getAttribute('href')?.slice(1) ?? '');
     if (id) track(`toc-${id}`, `Відкрили зі змісту: ${textOf(document.getElementById(id)?.querySelector('.qa-q'))}`);
