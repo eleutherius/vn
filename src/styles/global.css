@@ -159,6 +159,8 @@ button {
   .promo-line,
   .promo-code,
   .promo-cta,
+  .fx-preset,
+  .fx-mode,
   .author-contacts a,
   .to-top {
     transition: transform 100ms ease-out;
@@ -172,6 +174,8 @@ button {
   .promo-line:active,
   .promo-code:active,
   .promo-cta:active,
+  .fx-preset:active,
+  .fx-mode:active,
   .author-contacts a:active,
   .to-top:active {
     transform: var(--press);
@@ -1032,6 +1036,244 @@ main {
 }
 .promo-note {
   margin-top: 12px !important;
+  color: var(--ink-3);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* ---------- Калькулятор валют у відповіді ---------- */
+.prose .fx-card {
+  max-width: 440px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow:
+    inset 0 0 0 1px var(--line-strong),
+    var(--shadow-sm);
+}
+.fx-card p {
+  margin: 0;
+}
+.fx-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--jade);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fx-rows {
+  margin-top: 12px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.fx-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 4px 0 10px;
+}
+.fx-row + .fx-row {
+  border-top: 1px solid var(--line);
+}
+.fx-row:focus-within {
+  z-index: 1;
+  border-radius: 12px;
+  border-top-color: transparent;
+  box-shadow: 0 0 0 2px var(--jade);
+}
+.fx-row:focus-within + .fx-row {
+  border-top-color: transparent;
+}
+.fx-cur {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: text;
+}
+.fx-sym {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 1rem;
+  font-weight: 650;
+}
+.fx-label {
+  display: grid;
+  line-height: 1.2;
+}
+.fx-code {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.fx-name {
+  color: var(--ink-3);
+  font-size: 0.75rem;
+}
+.fx-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 52px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: 650 1.25rem/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.fx-input:focus,
+.fx-input:focus-visible {
+  outline: none;
+}
+.fx-input[aria-invalid] {
+  color: var(--red);
+}
+.fx-input::placeholder {
+  color: var(--ink-3);
+}
+.fx-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+.fx-presets-label {
+  margin-right: 2px;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+.fx-preset {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 36px;
+  padding: 0 4px;
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fx-preset:hover {
+  border-color: var(--line-strong);
+}
+.fx-rates {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.fx-rates-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+.fx-rates-title {
+  color: var(--ink-3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fx-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fx-mode {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.fx-mode:hover {
+  border-color: var(--line-strong);
+}
+.fx-mode[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+}
+.fx-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+.fx-rate-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  height: 44px;
+  padding: 0 2px 0 10px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: text;
+}
+.fx-rate-cell:focus-within {
+  box-shadow: inset 0 0 0 2px var(--jade);
+}
+.fx-rate-sym {
+  flex: none;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+.fx-rate-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 40px;
+  padding: 0 8px 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 650 1rem/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.fx-rate-input:focus,
+.fx-rate-input:focus-visible {
+  outline: none;
+}
+.fx-rate-input[aria-invalid] {
+  color: var(--red);
+}
+/* Найвужчі телефони: щоб «25 789» вміщалося в третину картки */
+@media (max-width: 359px) {
+  .fx-rate-cell {
+    padding-left: 8px;
+  }
+  .fx-rate-input {
+    padding: 0 4px 0 2px;
+    font-size: 0.875rem;
+  }
+}
+.fx-note {
+  margin-top: 8px !important;
   color: var(--ink-3);
   font-size: 0.8125rem;
   line-height: 1.45;

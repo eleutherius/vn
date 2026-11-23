@@ -9,6 +9,9 @@
  *   share-<питання>      натиснули «Поділитися»
  *   nav-<розділ>         клік по чипу або розділу в лівій колонці
  *   toc-<питання>        клік по питанню в змісті розділу чи в лівій колонці
+ *   converter            скористалися калькулятором валют
+ *   converter-rate-<id>  вибрали курс у калькуляторі: market або id готового з site.config.ts
+ *   converter-custom     вписали свій курс
  *
  * Кожна подія надсилається не більше одного разу за відкриття сторінки.
  * Якщо GoatCounter заблокований (adblock) — усе тихо нічого не робить.
@@ -132,6 +135,16 @@ document.addEventListener('faq:search', (e) => {
 document.getElementById('search-form')?.addEventListener('submit', sendSearch);
 // Пішли зі сторінки, не дочекавшись паузи, — запит усе одно рахуємо
 addEventListener('pagehide', sendSearch);
+
+/* ---------- Калькулятор валют ---------- */
+
+// converter.ts шле { action: 'use' | 'custom' | 'rate-<id>', label? }
+document.addEventListener('faq:converter', (e) => {
+  const { action, label } = (e as CustomEvent<{ action: string; label?: string }>).detail;
+  track('converter', 'Скористалися калькулятором валют');
+  if (action === 'custom') track('converter-custom', 'Калькулятор: свій курс');
+  else if (action.startsWith('rate-')) track(`converter-${action}`, `Калькулятор: курс «${label ?? action.slice(5)}»`);
+});
 
 /* ---------- Відкрили за посиланням з #якорем ---------- */
 
