@@ -12,6 +12,9 @@
  *   converter            скористалися калькулятором валют
  *   converter-rate-<id>  вибрали курс у калькуляторі: market або id готового з site.config.ts
  *   converter-custom     вписали свій курс
+ *   pwa-standalone       відкрили встановлений гайд (з іконки на телефоні)
+ *   pwa-install-click    натиснули «Встановити гайд»
+ *   pwa-installed        гайд встановили
  *
  * Кожна подія надсилається не більше одного разу за відкриття сторінки.
  * Якщо GoatCounter заблокований (adblock) — усе тихо нічого не робить.
@@ -144,6 +147,19 @@ document.addEventListener('faq:converter', (e) => {
   track('converter', 'Скористалися калькулятором валют');
   if (action === 'custom') track('converter-custom', 'Калькулятор: свій курс');
   else if (action.startsWith('rate-')) track(`converter-${action}`, `Калькулятор: курс «${label ?? action.slice(5)}»`);
+});
+
+/* ---------- Гайд як застосунок (PWA) ---------- */
+
+// pwa.ts шле { action: 'standalone' | 'install-click' | 'installed' }
+const PWA_TITLES: Record<string, string> = {
+  standalone: 'Відкрили встановлений гайд',
+  'install-click': 'Натиснули «Встановити гайд»',
+  installed: 'Встановили гайд',
+};
+document.addEventListener('faq:pwa', (e) => {
+  const { action } = (e as CustomEvent<{ action: string }>).detail;
+  track(`pwa-${action}`, PWA_TITLES[action] ?? action);
 });
 
 /* ---------- Відкрили за посиланням з #якорем ---------- */

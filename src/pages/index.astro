@@ -44,6 +44,9 @@ const jsonLd = JSON.stringify({
     <meta property="og:description" content={site.description} />
     <meta property="og:locale" content="uk_UA" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="manifest" href={`${base}manifest.webmanifest`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <meta name="apple-mobile-web-app-title" content={site.heading} />
     <script type="application/ld+json" is:inline set:html={jsonLd} />
     <script
       is:inline
@@ -273,6 +276,7 @@ const jsonLd = JSON.stringify({
       import '../scripts/analytics.ts';
       import '../scripts/faq.ts';
       import '../scripts/converter.ts';
+      import '../scripts/pwa.ts';
     </script>
   </body>
 </html>

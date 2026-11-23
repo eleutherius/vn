@@ -43,6 +43,7 @@ updated: 2026-10-08
 - Розділ показується як глава: номер, зміст питань (1.1, 1.2…) і всі відповіді відкритим текстом. Номери рахуються з порядку файлів і питань, а посилання тримаються на якорях, тож перестановка не ламає старі лінки.
 - Маркер `<!-- promo -->` у відповіді замінюється карткою з промокодом із `promo` у `site.config.ts`. Якщо `promo` вимкнене, маркер просто зникає.
 - Маркер `<!-- converter -->` у відповіді замінюється калькулятором валют (VND, UAH, USD, EUR). Зараз він стоїть у 2.1 «Яка валюта і який курс?».
+- Маркер `<!-- install -->` замінюється карткою «Встановити гайд». Зараз вона в 3.8 «Які застосунки встановити?».
 
 Назва сайту, підказки для пошуку, промо (`promo`: рядок у шапці й картка на місці `<!-- promo -->`), блок «Про автора» з контактами (`author`, QR для Zalo лежить у `public/zalo-qr.svg`), дисклеймер і посилання на репозиторій задаються в [`src/site.config.ts`](src/site.config.ts).
 
@@ -67,6 +68,17 @@ updated: 2026-10-08
 - Вводити можна в будь-якому рядку: «100 000», «100.000», «50k», «1,5M», «5tr». Кнопки 50k–1M — швидкі суми в донгах, бо в цифровій клавіатурі телефона немає «k».
 - Валюти, швидкі суми й початкова сума — у [`src/lib/converter.ts`](src/lib/converter.ts).
 
+## Офлайн і встановлення (PWA)
+
+Гайд можна встановити на телефон, і тоді він працює без інтернету — саме тоді, коли SIM ще немає.
+
+- [`src/pages/manifest.webmanifest.ts`](src/pages/manifest.webmanifest.ts) — маніфест: назва й опис беруться з `site.config.ts`.
+- Іконки в `public/`: `icon-192.png`, `icon-512.png` (з `favicon.svg`), `icon-maskable-512.png` (з [`src/pwa/icon-maskable.svg`](src/pwa/icon-maskable.svg), з полями під круглу маску Android) і `apple-touch-icon.png` (з [`src/pwa/icon-full.svg`](src/pwa/icon-full.svg)). Якщо міняєте лого — перегенеруйте PNG будь-яким конвертером SVG→PNG.
+- Service worker — шаблон [`src/pwa/sw.js`](src/pwa/sw.js). Після білду інтеграція [`src/pwa/integration.mjs`](src/pwa/integration.mjs) дописує в нього список усіх файлів із `dist/` і версію — хеш їхнього вмісту, і кладе як `dist/sw.js`. Змінився хоч один файл — браузери самі оновлять кеш.
+- Сторінка береться спершу з мережі, щоб правила й ціни були свіжі; копія з кешу — коли мережі немає або вона довше 4 с. Файли `_astro/*` (з хешем у назві) — одразу з кешу. GoatCounter і API курсів не кешуються.
+- У `pnpm dev` service worker не реєструється. Перевіряти офлайн — через `pnpm build && pnpm preview`: DevTools → Application → Service workers, далі галочка Offline у Network.
+- Картка «Встановити гайд» ([`src/lib/install.ts`](src/lib/install.ts), [`src/scripts/pwa.ts`](src/scripts/pwa.ts)): в Android/Chrome — кнопка, на iPhone — підказка «Поділитися → На початковий екран», у вже встановленому гайді — «✓ встановлено».
+
 ## Аналітика
 
 GoatCounter (без cookies) рахує відкриття сторінки, а [`src/scripts/analytics.ts`](src/scripts/analytics.ts) додає події — їх видно в дашборді поруч зі сторінками:
@@ -82,6 +94,8 @@ GoatCounter (без cookies) рахує відкриття сторінки, а 
 | `nav-<розділ>`, `toc-<якір>` | кліки по розділах і по питаннях у змісті |
 | `converter` | скористалися калькулятором валют |
 | `converter-rate-<id>`, `converter-custom` | вибрали курс у калькуляторі (`market` чи id готового) або вписали свій |
+| `pwa-standalone` | відкрили встановлений гайд з іконки |
+| `pwa-install-click`, `pwa-installed` | натиснули «Встановити гайд» / встановили |
 
 Кожна подія — не більше разу за відкриття сторінки. Під час пошуку й коли вкладка прихована читання не рахується. Для рейтингу розділів відфільтруйте дашборд за `read-`.
 
@@ -94,10 +108,14 @@ src/lib/faq.ts            розбір md → розділи/питання (mar
 src/lib/promo.ts          картка промокоду на місці <!-- promo -->
 src/lib/converter.ts      калькулятор валют на місці <!-- converter -->
 src/lib/rates.ts          курси валют: API на білді + запасні
+src/lib/install.ts        картка «Встановити гайд» на місці <!-- install -->
+src/pages/manifest.webmanifest.ts  маніфест PWA
+src/pwa/                  service worker, інтеграція, що його збирає, і SVG для іконок
 src/pages/index.astro     сторінка + JSON-LD FAQPage
 src/scripts/faq.ts        пошук, липка панель, scrollspy, якорі, «поділитися»
 src/scripts/analytics.ts  події GoatCounter: що читають і шукають
 src/scripts/converter.ts  калькулятор: перерахунок і свіжі курси в браузері
+src/scripts/pwa.ts        реєстрація service worker і картка встановлення
 src/styles/global.css     дизайн-токени, світла/темна тема
 ```
 

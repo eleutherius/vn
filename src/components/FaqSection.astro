@@ -2,6 +2,7 @@
 import type { FaqCategory } from '../lib/faq';
 import { QUESTION_FORMS, formatDate, plural } from '../lib/plural';
 import { withConverter } from '../lib/converter';
+import { withInstall } from '../lib/install';
 import { withPromo } from '../lib/promo';
 import { getRates } from '../lib/rates';
 import { site } from '../site.config';
@@ -83,7 +84,7 @@ const editUrl =
             </button>
           </div>
           <h3 class="qa-q" id={`${q.id}-h`} set:html={q.titleHtml} />
-          <div class="prose" set:html={withConverter(withPromo(q.html, site.promo), rates, site.ratePresets)} />
+          <div class="prose" set:html={withInstall(withConverter(withPromo(q.html, site.promo), rates, site.ratePresets))} />
         </article>
       ))
     }

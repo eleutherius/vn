@@ -161,6 +161,7 @@ button {
   .promo-cta,
   .fx-preset,
   .fx-mode,
+  .install-btn,
   .author-contacts a,
   .to-top {
     transition: transform 100ms ease-out;
@@ -176,6 +177,7 @@ button {
   .promo-cta:active,
   .fx-preset:active,
   .fx-mode:active,
+  .install-btn:active,
   .author-contacts a:active,
   .to-top:active {
     transform: var(--press);
@@ -1277,6 +1279,75 @@ main {
   color: var(--ink-3);
   font-size: 0.8125rem;
   line-height: 1.45;
+}
+
+/* ---------- Картка «Встановити гайд» ---------- */
+.prose .install-card {
+  max-width: 440px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--jade-soft);
+}
+.install-card p {
+  margin: 0;
+}
+.install-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--jade);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.install-title {
+  margin-top: 8px !important;
+  font-size: 1.0625rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.install-text {
+  margin-top: 4px !important;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.install-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--jade);
+  color: var(--bg);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.install-btn:hover {
+  filter: brightness(1.08);
+}
+.install-how,
+.install-done {
+  margin-top: 12px !important;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.install-done {
+  color: var(--jade-ink);
+  font-weight: 600;
+}
+.install-share {
+  vertical-align: -2px;
+  color: var(--jade);
 }
 
 /* ---------- Про автора ---------- */
